@@ -113,7 +113,34 @@ public:
 				}
 			}
 			else { // for deleting an other nodes that are not the root
+				if (newN->right->_k == 0 && newN->left->_k == 0) {
+					node* nullNode = new node();
+					nullNode->_k = 0;
+					if (isleftSideOfParent(newN)) {
+						nullNode->parent = newN->parent->left;
+						newN->parent->left = nullNode;
 
+					}
+					else {
+						nullNode->parent = newN->parent->right;
+						newN->parent->right = nullNode;
+					}
+					// If anyt problem, switch to pointers
+					//nullNode._v = "p";
+				}
+				else if(newN->right->_k != 0) {
+					// checking the right first before the left
+					newN->parent->right = newN->right;
+					newN->right->parent = newN->parent;
+					if (newN->left->_k != 0) {
+						node* leftMostNode = getMostLeftChild(newN->right);
+						leftMostNode->left = newN->left;
+						newN->left->parent = newN->right;
+					}
+				}
+				else {
+					newN->parent->right = newN->left;
+				}
 			}
 			ReBalance(_Root);
 		}
@@ -121,6 +148,15 @@ public:
 			cout << "node not found";
 		}
 
+	}
+
+	bool isleftSideOfParent(node* node) {
+		if (node->_k > node->parent->_k) {
+			return false;
+		}
+		else {
+			return true;
+		}
 	}
 
 	node* getMostLeftChild(node* n) {
