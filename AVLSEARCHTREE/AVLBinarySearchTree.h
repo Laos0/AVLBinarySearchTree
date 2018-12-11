@@ -95,6 +95,7 @@ public:
 			if (newN->IsRoot()) {
 				if (newN->right->_k == 0 && newN->left->_k == 0) {
 					_Root->_k = 0;
+					//_Root = nullptr;
 				}
 				else if (newN->right->_k != 0) {
 					if (newN->left->_k != 0) {
