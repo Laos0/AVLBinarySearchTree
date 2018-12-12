@@ -2,6 +2,7 @@
 #define _BST_
 #include<string>
 #include<iostream>
+#include<vector>
 using namespace std;
 ////class defintion for tree nodes
 class node {
@@ -221,6 +222,54 @@ public:
 		// Pass initial space count as 0 
 		print2DUtil(root, 0);
 	}
+// ----------------------------------------- DRAW THE TREE -------------------------------------------
+	///draw the tree
+	void DrawTree() {
+		///1. create array large enough for drawing the tree
+		int col = this->_Size;
+		int row = height(this->_Root) + 1;
+		vector<vector<string>> Grid(row, vector<string>(col, "NULL"));
+		///2. inorder traversal tree and assign coordinates
+		int counter = 0;
+		AssignCoordinates(this->_Root, Grid, counter);
+		///3. draw the tree using the Grid
+		for (int i = 0; i < row; i++) {
+			for (int j = 0; j < col; j++) {
+				if (Grid[i][j] == "NULL") {
+					cout << "  ";
+				}
+				else {
+					cout << Grid[i][j];
+				}
+			}
+			cout << endl;
+		}
+	}
+
+	///Assign Coordinates
+	void AssignCoordinates(node* N, vector<vector<string>>& Grid, int& counter) {
+		if (N != nullptr) {
+			if (N->_k != 0) {
+				AssignCoordinates(N->left, Grid, counter);
+				int col = counter;
+				int row = GetDepth(N);
+				Grid[row][col] = to_string(N->_k);
+					counter++;
+				AssignCoordinates(N->right, Grid, counter);
+			}
+		}
+	}
+
+	////depth-number of nodes above
+	int GetDepth(node* N) {
+		if (N->IsRoot()) {
+			return 0;
+		}
+		else {
+			return 1 + GetDepth(N->parent);
+		}
+	}
+// -------------------------------------------------- END OF DRAW TREE ---------------------------------------
 
 private:
 	node* _Root;

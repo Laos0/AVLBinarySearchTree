@@ -26,7 +26,8 @@ int main() {
 				cin >> key >> value;
 				MyBST.BInsert(key, value);
 				//MyBST.displayTree();
-				MyBST.print2D(MyBST.getRoot());
+				//MyBST.print2D(MyBST.getRoot());
+				MyBST.DrawTree();
 				cout << endl;
 				break;
 			}
@@ -41,7 +42,8 @@ int main() {
 				else {
 					cout << "record no exist" << endl;
 				}
-				MyBST.print2D(MyBST.getRoot());
+				//MyBST.print2D(MyBST.getRoot());
+				MyBST.DrawTree();
 				break;
 			}
 			case 3: { // Deleting
@@ -55,7 +57,8 @@ int main() {
 				else {
 					cout << "record not exist" << endl;
 				}
-				MyBST.print2D(MyBST.getRoot());
+				//MyBST.print2D(MyBST.getRoot());
+				MyBST.DrawTree();
 				break;
 			}
 			default: {
