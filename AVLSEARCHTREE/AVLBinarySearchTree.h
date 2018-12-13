@@ -51,6 +51,34 @@ public:
 	node* getRoot() {
 		return this->_Root;
 	}
+	//// personal method to call isBalance, since it is private
+	node* getUnbalancedNode(node* N) {
+		if (N == nullptr) {
+			return N;
+		}
+		else {
+			if (N->parent == nullptr) {
+				if (IsBalanced(N)) {
+					return nullptr;
+				}
+				else {
+					return N;
+				}
+			}
+			else {
+				if (IsBalanced(N)) {
+					getUnbalancedNode(N->parent);
+				}
+				else { // if N is unbalanced return N or itself
+					return N;
+				}
+			}
+		}
+	}
+
+	node* callTallGrandChild(node* N) {
+		return tallGrandchild(N);
+	}
 	////search for node function
 	node* ToSearch(int k, node* N) {///N is always root at the beginning
 		if (N->IsExternal()) {///not finding any nodes in tree that has k
@@ -87,70 +115,88 @@ public:
 		this->_Size++;
 		return w;
 	}
-	///to delete node from tree
-	void deleteNode(int n) {
-		node* newN = ToSearch(n, _Root);
-		if (newN->_k != 0) {
-			cout << "node found";
-			// only for deleting the root
-			if (newN->IsRoot()) {
-				if (newN->right->_k == 0 && newN->left->_k == 0) {
-					_Root->_k = 0;
-					//_Root = nullptr;
-				}
-				else if (newN->right->_k != 0) {
-					if (newN->left->_k != 0) {
-						node* leftMostNode = getMostLeftChild(newN->right);
-						leftMostNode->left = newN->left;
-						newN->left->parent = newN->right;
-					}
-					_Root = newN->right;
-					_Root->parent = nullptr;
-					
-					cout << "Root Node deleted and replaced by right";
-				}
-				else {
-					_Root = newN->left;
-					cout << "Root Node deleted and replaced by left";
-				}
+	////////////////////////////////////////////to delete node from tree//////////////////////////////
+	node* deleteNode(int n) {
+		if (this->getSize() > 0) {
+			node* v = ToSearch(n, this->getRoot());//find the node to delete
+			if (v->IsExternal()) {
+				cout << "such node can not be found to be deleted from the tree" << endl;
 			}
-			else { // for deleting an other nodes that are not the root
-				if (newN->right->_k == 0 && newN->left->_k == 0) {
-					node* nullNode = new node();
-					nullNode->_k = 0;
-					if (isleftSideOfParent(newN)) {
-						nullNode->parent = newN->parent->left;
-						newN->parent->left = nullNode;
+			else {
+				node* w; //node that is possibly external and child of v
+				if (v->left->IsExternal()) {///case1 if v's left child is external
+					w = v->left;
+				}
+				else if (v->right->IsExternal()) {////case2 if v's right child is external
+					w = v->right;
+				}
+				else {////case3 if no children of v is external
+					w = v->right; ///we can also to left if we want
+					do {
+						w = w->left;///find the left most child with smallest key larger than v.key
+					} while (w->IsInternal());
+					node* u = w->parent;///u is node to replace the node to be deleted
+					v->_k = u->_k;
+					v->_v = u->_v;
+				}
+				////reduce number of nodes in tree
+				this->_Size--;
 
-					}
-					else {
-						nullNode->parent = newN->parent->right;
-						newN->parent->right = nullNode;
-					}
-					// If anyt problem, switch to pointers
-					//nullNode._v = "p";
-				}
-				else if(newN->right->_k != 0) {
-					// checking the right first before the left
-					newN->parent->right = newN->right;
-					newN->right->parent = newN->parent;
-					if (newN->left->_k != 0) {
-						node* leftMostNode = getMostLeftChild(newN->right);
-						leftMostNode->left = newN->left;
-						newN->left->parent = newN->right;
-					}
-				}
-				else {
-					newN->parent->right = newN->left;
-				}
+				node* pN = v->parent;
+				/////delete the node from the tree, using auxiliary function
+				this->RemoveAboveExternal(w);
+				return pN;
+
 			}
-			ReBalance(_Root);
 		}
 		else {
-			cout << "node not found";
+			cout << "tree is empty, nothing to be deleted" << endl;
+			return nullptr;
 		}
 
 	}
+
+
+	void RemoveAboveExternal(node* N) {///remove the passing parameter node
+		if (N->IsExternal()) {
+			///1. get sibling node
+			node* sib;
+			node* parent = N->parent;
+			if (parent->left == N) {///if N is left child
+				sib = parent->right;
+			}
+			else {
+				sib = parent->left;
+			}
+			///2.replace parent with sibling
+			////2.1 if parent is root: that means no grandparents
+			if (parent->IsRoot()) {
+				this->_Root = sib;
+				sib->parent = nullptr;
+			}
+			else {////2.2 if parent is not root: that means there is grand parent
+				node* Gparent = parent->parent;
+				//need to figure out if parent is grandparent's left or right child
+				if (parent == Gparent->left) {//if left
+					Gparent->left = sib;
+					sib->parent = Gparent;
+				}
+				else {
+					Gparent->right = sib;
+					sib->parent = Gparent;
+				}
+			}
+
+			////delete the nodes after all the operations
+			delete N;
+			delete parent;
+		}
+		else {
+			cout << "RemoveAboveExternal(): should be external node";
+		}
+	}
+
+	////// ----------------------------- END OF DELETE -------------------------------------
 
 	bool isleftSideOfParent(node* node) {
 		if (node->_k > node->parent->_k) {
@@ -193,37 +239,9 @@ public:
 		return v;
 	}
 
-	void print2DUtil(node *root, int space)
-	{
-		// Base case 
-		if (root == NULL)
-			return;
 
-		// Increase distance between levels 
-		space += 10;
-
-		// Process right child first 
-		print2DUtil(root->right, space);
-
-		// Print current node after space 
-		// count 
-		printf("\n");
-		for (int i = 10; i < space; i++)
-			printf(" ");
-		printf("%d\n", root->_k);
-
-		// Process left child 
-		print2DUtil(root->left, space);
-	}
-
-	// Wrapper over print2DUtil() 
-	void print2D(node *root)
-	{
-		// Pass initial space count as 0 
-		print2DUtil(root, 0);
-	}
-// ----------------------------------------- DRAW THE TREE -------------------------------------------
-	///draw the tree
+	// ----------------------------------------- DRAW THE TREE -------------------------------------------
+		///draw the tree
 	void DrawTree() {
 		///1. create array large enough for drawing the tree
 		int col = this->_Size;
@@ -239,7 +257,7 @@ public:
 					cout << "  ";
 				}
 				else {
-					cout << Grid[i][j];
+					cout << Grid[i][j] << " ";
 				}
 			}
 			cout << endl;
@@ -254,7 +272,7 @@ public:
 				int col = counter;
 				int row = GetDepth(N);
 				Grid[row][col] = to_string(N->_k);
-					counter++;
+				counter++;
 				AssignCoordinates(N->right, Grid, counter);
 			}
 		}
@@ -269,7 +287,7 @@ public:
 			return 1 + GetDepth(N->parent);
 		}
 	}
-// -------------------------------------------------- END OF DRAW TREE ---------------------------------------
+	// -------------------------------------------------- END OF DRAW TREE ---------------------------------------
 
 private:
 	node* _Root;
@@ -324,6 +342,8 @@ private:
 			return true;
 		}
 		else {
+			// if height of N's left and right has a difference of 1 or less then it is less
+			// balanced
 			int bal = height(N->left) - height(N->right);
 			return ((-1 <= bal) && (bal <= 1));
 		}

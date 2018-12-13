@@ -19,51 +19,61 @@ int main() {
 			break;
 		}
 		switch (input) {
-			case 1: {///insert
-				int key;
-				string value;
-				cout << "please enter ID and Name:"; // with a space between them when entering
-				cin >> key >> value;
-				MyBST.BInsert(key, value);
-				//MyBST.displayTree();
-				//MyBST.print2D(MyBST.getRoot());
-				MyBST.DrawTree();
-				cout << endl;
-				break;
+		case 1: {///insert
+			int key;
+			string value;
+			cout << "please enter ID and Name:"; // with a space between them when entering
+			cin >> key >> value;
+			MyBST.BInsert(key, value);
+			//MyBST.displayTree();
+			//MyBST.print2D(MyBST.getRoot());
+			MyBST.DrawTree();
+			cout << endl;
+			break;
+		}
+		case 2: {/////search
+			int key;
+			cout << "please enter ID to search:";
+			cin >> key;
+			node* v = MyBST.ToSearch(key, MyBST.getRoot());
+			if (v->IsInternal()) {
+				cout << "ID: " << v->_k << ",  " << "Name: " << v->_v << endl;
 			}
-			case 2: {/////search
-				int key;
-				cout << "please enter ID to search:";
-				cin >> key;
-				node* v = MyBST.ToSearch(key, MyBST.getRoot());
-				if (v->IsInternal()) {
-					cout << "ID: " << v->_k << ",  " << "Name: " << v->_v << endl;
+			else {
+				cout << "record no exist" << endl;
+			}
+			//MyBST.print2D(MyBST.getRoot());
+			MyBST.DrawTree();
+			break;
+		}
+		case 3: { // Deleting
+			int key;
+			cout << "please enter ID to delete";
+			cin >> key;
+			node* v = MyBST.ToSearch(key, MyBST.getRoot());
+			if (v->IsInternal()) {
+				//MyBST.deleteNode(key);
+				node* parentNode = MyBST.deleteNode(key); // 
+				node* unbalancedNode = MyBST.getUnbalancedNode(parentNode); // z
+				if (unbalancedNode == nullptr) {
+					//cout << "Nothing needed to be balanced";
 				}
 				else {
-					cout << "record no exist" << endl;
+					node* grandChild = MyBST.callTallGrandChild(unbalancedNode); // x
+					MyBST.ReBalance(grandChild);
 				}
-				//MyBST.print2D(MyBST.getRoot());
-				MyBST.DrawTree();
-				break;
+
 			}
-			case 3: { // Deleting
-				int key;
-				cout << "please enter ID to delete";
-				cin >> key;
-				node* v = MyBST.ToSearch(key, MyBST.getRoot());
-				if (v->IsInternal()) {
-					MyBST.deleteNode(key);
-				}
-				else {
-					cout << "record not exist" << endl;
-				}
-				//MyBST.print2D(MyBST.getRoot());
-				MyBST.DrawTree();
-				break;
+			else {
+				cout << "record not exist" << endl;
 			}
-			default: {
-				cout << "you entered wrong option" << endl;
-			}
+			//MyBST.print2D(MyBST.getRoot());
+			MyBST.DrawTree();
+			break;
+		}
+		default: {
+			cout << "you entered wrong option" << endl;
+		}
 		}
 	}
 
